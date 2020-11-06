@@ -1,14 +1,43 @@
+import 'package:expenses_app/model/transection.dart';
+import 'package:expenses_app/widgets/chart_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class ChartBar extends StatelessWidget {
+class Chart extends StatelessWidget {
+  List<Transaction> recentTransaction = [];
+
+  Chart(this.recentTransaction);
+
   List<Map<String, Object>> get groupedExpenses {
-    return List.generate(7, (index) {
-      return {
-        "day": DateFormat.E().format(DateTime.now()),
-        "amount": 10 * index,
-      };
-    });
+    return List.generate(
+      7,
+      (index) {
+        final weekDay = DateTime.now().subtract(Duration(days: index));
+        double totalSum = 0.0;
+        recentTransaction.forEach(
+          (tx) {
+            if (tx.transaction_date.day == weekDay.day &&
+                tx.transaction_date.month == weekDay.month &&
+                tx.transaction_date.year == weekDay.year) {
+              totalSum += tx.price;
+            }
+          },
+        );
+        return {
+          "day": DateFormat.E().format(weekDay),
+          "amount": totalSum,
+        };
+      },
+    ).reversed.toList();
+  }
+
+  double get totalSpending {
+    return groupedExpenses.fold(
+      0.0,
+      (sum, item) {
+        return sum + item["amount"];
+      },
+    );
   }
 
   @override
@@ -19,31 +48,22 @@ class ChartBar extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
         child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: groupedExpenses
-                .map(
-                  (data) => Column(
-                    children: [
-                      Text("\$${data["amount"]}"),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Container(
-                        width: 10,
-                        height: 60,
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey, width: 1),
-                            color: Color.fromRGBO(220, 220, 220, 1),
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Text("${data["day"]}")
-                    ],
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: groupedExpenses
+              .map(
+                (data) => Flexible(
+                  fit: FlexFit.tight,
+                  child: ChartBar(
+                    weekDay: data["day"],
+                    dayAmount: data["amount"],
+                    spentPercentage: totalSpending == 0.0
+                        ? 0.0
+                        : (data["amount"] as double) / totalSpending,
                   ),
-                )
-                .toList()),
+                ),
+              )
+              .toList(),
+        ),
       ),
     );
   }

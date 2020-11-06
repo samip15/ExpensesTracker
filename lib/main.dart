@@ -18,11 +18,13 @@ class MyApp extends StatelessWidget {
         accentColor: Colors.green,
         fontFamily: "SourceCodePro",
         appBarTheme: AppBarTheme(
-            textTheme: TextTheme(
-                headline6: TextStyle(
-                    fontFamily: "TurretRoad",
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20))),
+          textTheme: TextTheme(
+            headline6: TextStyle(
+                fontFamily: "TurretRoad",
+                fontWeight: FontWeight.bold,
+                fontSize: 20),
+          ),
+        ),
       ),
       home: ExpensePage(),
     );
@@ -35,67 +37,117 @@ class ExpensePage extends StatefulWidget {
 }
 
 class _ExpensePageState extends State<ExpensePage> {
-  List<Transaction> _txList = [
-    Transaction(
-        name: "Watch",
-        price: 900.0,
-        transaction_date: DateTime.now(),
-        id: DateTime.now().toString()),
-    Transaction(
-        name: "Shirt",
-        price: 300.0,
-        transaction_date: DateTime.now(),
-        id: DateTime.now().toString()),
-  ];
+  List<Transaction> _txList = [];
+  bool _showChart = false;
+  List<Transaction> get _recentTransaction {
+    return _txList.where(
+      (tx) {
+        return tx.transaction_date.isAfter(
+          DateTime.now().subtract(
+            Duration(days: 7),
+          ),
+        );
+      },
+    ).toList();
+  }
 
   /// Function {__addTx} : Adds A New Transaction
   void _addTx(String itemName, double itemPrice, DateTime itemDate) {
-    setState(() {
-      _txList.add(Transaction(
-          name: itemName,
-          price: itemPrice,
-          transaction_date: itemDate,
-          id: itemDate.toString()));
-    });
+    setState(
+      () {
+        _txList.add(
+          Transaction(
+            name: itemName,
+            price: itemPrice,
+            transaction_date: itemDate,
+            id: itemDate.toString(),
+          ),
+        );
+      },
+    );
   }
 
   /// Function {_deleteTx} : Deletes A  Transaction
   void _deleteTx(String id) {
-    setState(() {
-      _txList.removeWhere((trans) {
-        return trans.id == id;
-      });
-    });
+    setState(
+      () {
+        _txList.removeWhere(
+          (trans) {
+            return trans.id == id;
+          },
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Expenses Tracker"),
-        centerTitle: true,
+    final mediaQuery = MediaQuery.of(context);
+    final isLandScape = mediaQuery.orientation == Orientation.landscape;
+    final appBar = AppBar(
+      title: Text("Expenses Tracker"),
+      centerTitle: true,
+    );
+    final txListWidget = Container(
+      height: (mediaQuery.size.height * 0.7 -
+          appBar.preferredSize.height -
+          mediaQuery.padding.top),
+      child: TransactionList(
+        txList: _txList,
+        deleteTx: _deleteTx,
       ),
+    );
+
+    return Scaffold(
+      appBar: appBar,
       body: Column(
         children: [
-          ChartBar(),
-          SizedBox(
-            height: 20,
-          ),
-          TransactionList(
-            txList: _txList,
-            deleteTx: _deleteTx,
-          ),
+          if (isLandScape)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Show Chart"),
+                Switch.adaptive(
+                  value: _showChart,
+                  onChanged: (val) {
+                    setState(
+                      () {
+                        _showChart = val;
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+          if (isLandScape)
+            _showChart
+                ? Container(
+                    height: (mediaQuery.size.height * 0.7 -
+                        appBar.preferredSize.height -
+                        mediaQuery.padding.top),
+                    child: Chart(_recentTransaction),
+                  )
+                : txListWidget,
+          if (!isLandScape)
+            Container(
+              height: (mediaQuery.size.height * 0.3 -
+                  appBar.preferredSize.height -
+                  mediaQuery.padding.top),
+              child: Chart(_recentTransaction),
+            ),
+          if (!isLandScape) txListWidget,
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showModalBottomSheet(
-              context: context,
-              builder: (bCtx) {
-                return AddTransection(
-                  addTransaction: _addTx,
-                );
-              });
+            context: context,
+            builder: (bCtx) {
+              return AddTransection(
+                addTransaction: _addTx,
+              );
+            },
+          );
         },
         child: Icon(Icons.add),
       ),

@@ -43,66 +43,73 @@ class _AddTransectionState extends State<AddTransection> {
   @override
   Widget build(BuildContext context) {
     ThemeData _themeConst = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          TextField(
-            decoration: InputDecoration(
-              prefixIcon: Icon(Icons.shopping_bag),
-              labelText: "Item Name",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-            ),
-            keyboardType: TextInputType.text,
-            controller: _nameController,
-            textInputAction: TextInputAction.next,
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          TextField(
-            decoration: InputDecoration(
-              prefixIcon: Icon(Icons.monetization_on),
-              labelText: "Item Price",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-            ),
-            keyboardType: TextInputType.number,
-            controller: _priceController,
-            textInputAction: TextInputAction.done,
-            onSubmitted: (value) => addTransaction(),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                _selectedDateTime == null
-                    ? "No Date Entered"
-                    : "Picked Date: ${DateFormat.yMd().format(_selectedDateTime)}",
-                style: TextStyle(fontSize: 10),
-              ),
-              FlatButton(
-                onPressed: pickDate,
-                padding: EdgeInsets.all(0),
-                child: Text(
-                  "Choose a Date",
-                  style: _themeConst.textTheme.headline6
-                      .copyWith(fontSize: 15, color: _themeConst.primaryColor),
+    final mediaQuery = MediaQuery.of(context);
+    return SingleChildScrollView(
+      child: Container(
+        padding: EdgeInsets.only(
+            top: 20,
+            left: 20,
+            right: 20,
+            bottom: mediaQuery.viewInsets.bottom + 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            TextField(
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.shopping_bag),
+                labelText: "Item Name",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
                 ),
               ),
-            ],
-          ),
-          RaisedButton(
-            onPressed: addTransaction,
-            child: Text("Add Transaction"),
-            color: _themeConst.accentColor,
-            textColor: Colors.white,
-          )
-        ],
+              keyboardType: TextInputType.text,
+              controller: _nameController,
+              textInputAction: TextInputAction.next,
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            TextField(
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.monetization_on),
+                labelText: "Item Price",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+              ),
+              keyboardType: TextInputType.number,
+              controller: _priceController,
+              textInputAction: TextInputAction.done,
+              onSubmitted: (value) => addTransaction(),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _selectedDateTime == null
+                      ? "No Date Entered"
+                      : "Picked Date: ${DateFormat.yMd().format(_selectedDateTime)}",
+                  style: TextStyle(fontSize: 10),
+                ),
+                FlatButton(
+                  onPressed: pickDate,
+                  padding: EdgeInsets.all(0),
+                  child: Text(
+                    "Choose a Date",
+                    style: _themeConst.textTheme.headline6.copyWith(
+                        fontSize: 15, color: _themeConst.primaryColor),
+                  ),
+                ),
+              ],
+            ),
+            RaisedButton(
+              onPressed: addTransaction,
+              child: Text("Add Transaction"),
+              color: _themeConst.accentColor,
+              textColor: Colors.white,
+            )
+          ],
+        ),
       ),
     );
   }

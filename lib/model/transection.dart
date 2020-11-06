@@ -6,9 +6,10 @@ class Transaction {
   DateTime transaction_date;
   String id;
 
-  Transaction(
-      {@required this.name,
-      @required this.id,
-      @required this.price,
-      @required this.transaction_date});
+  Transaction({
+    @required this.name,
+    @required this.price,
+    @required this.transaction_date,
+    @required this.id,
+  });
 }
