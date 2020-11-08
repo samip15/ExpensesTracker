@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:expenses_app/model/transection.dart';
 import 'package:expenses_app/widgets/chart.dart';
 import 'package:expenses_app/widgets/new_transection.dart';
@@ -80,14 +82,34 @@ class _ExpensePageState extends State<ExpensePage> {
     );
   }
 
+  /// Model Bottom Sheet
+  void _showModel() {
+    showModalBottomSheet(
+      context: context,
+      builder: (bCtx) {
+        return AddTransection(
+          addTransaction: _addTx,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final isLandScape = mediaQuery.orientation == Orientation.landscape;
-    final appBar = AppBar(
-      title: Text("Expenses Tracker"),
-      centerTitle: true,
-    );
+    PreferredSizeWidget appBar = Platform.isIOS
+        ? CupertinoNavigationBar(
+            middle: Text("Expenses Tracker"),
+            trailing: IconButton(
+              icon: Icon(CupertinoIcons.add),
+              onPressed: _showModel,
+            ),
+          )
+        : AppBar(
+            title: Text("Expenses Tracker"),
+            centerTitle: true,
+          );
     final txListWidget = Container(
       height: (mediaQuery.size.height * 0.7 -
           appBar.preferredSize.height -
@@ -98,60 +120,59 @@ class _ExpensePageState extends State<ExpensePage> {
       ),
     );
 
-    return Scaffold(
-      appBar: appBar,
-      body: Column(
-        children: [
-          if (isLandScape)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text("Show Chart"),
-                Switch.adaptive(
-                  value: _showChart,
-                  onChanged: (val) {
-                    setState(
-                      () {
-                        _showChart = val;
-                      },
-                    );
-                  },
-                ),
-              ],
-            ),
-          if (isLandScape)
-            _showChart
-                ? Container(
-                    height: (mediaQuery.size.height * 0.7 -
-                        appBar.preferredSize.height -
-                        mediaQuery.padding.top),
-                    child: Chart(_recentTransaction),
-                  )
-                : txListWidget,
-          if (!isLandScape)
-            Container(
-              height: (mediaQuery.size.height * 0.3 -
-                  appBar.preferredSize.height -
-                  mediaQuery.padding.top),
-              child: Chart(_recentTransaction),
-            ),
-          if (!isLandScape) txListWidget,
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            builder: (bCtx) {
-              return AddTransection(
-                addTransaction: _addTx,
-              );
-            },
-          );
-        },
-        child: Icon(Icons.add),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    final pageBody = Column(
+      children: [
+        if (isLandScape)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Show Chart"),
+              Switch.adaptive(
+                value: _showChart,
+                onChanged: (val) {
+                  setState(
+                    () {
+                      _showChart = val;
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        if (isLandScape)
+          _showChart
+              ? Container(
+                  height: (mediaQuery.size.height * 0.7 -
+                      appBar.preferredSize.height -
+                      mediaQuery.padding.top),
+                  child: Chart(_recentTransaction),
+                )
+              : txListWidget,
+        if (!isLandScape)
+          Container(
+            height: (mediaQuery.size.height * 0.3 -
+                appBar.preferredSize.height -
+                mediaQuery.padding.top),
+            child: Chart(_recentTransaction),
+          ),
+        if (!isLandScape) txListWidget,
+      ],
     );
+
+    return Platform.isIOS
+        ? CupertinoPageScaffold(
+            child: pageBody,
+            navigationBar: appBar,
+          )
+        : Scaffold(
+            appBar: appBar,
+            body: pageBody,
+            floatingActionButton: FloatingActionButton(
+              onPressed: _showModel,
+              child: Icon(Icons.add),
+            ),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+          );
   }
 }

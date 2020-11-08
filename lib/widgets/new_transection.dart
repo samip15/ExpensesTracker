@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -28,16 +31,28 @@ class _AddTransectionState extends State<AddTransection> {
   }
 
   void pickDate() {
-    showDatePicker(
-            context: context,
-            initialDate: DateTime.now(),
-            firstDate: DateTime(2020),
-            lastDate: DateTime.now())
-        .then((pickDate) {
-      setState(() {
-        _selectedDateTime = pickDate;
-      });
-    });
+    Platform.isIOS
+        ? CupertinoDatePicker(
+            initialDateTime: DateTime.now(),
+            minimumDate: DateTime(2020),
+            maximumDate: DateTime.now(),
+            onDateTimeChanged: (pickDate) {
+              setState(
+                () {
+                  _selectedDateTime = pickDate;
+                },
+              );
+            })
+        : showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(2020),
+                lastDate: DateTime.now())
+            .then((pickDate) {
+            setState(() {
+              _selectedDateTime = pickDate;
+            });
+          });
   }
 
   @override
@@ -102,12 +117,21 @@ class _AddTransectionState extends State<AddTransection> {
                 ),
               ],
             ),
-            RaisedButton(
-              onPressed: addTransaction,
-              child: Text("Add Transaction"),
-              color: _themeConst.accentColor,
-              textColor: Colors.white,
-            )
+            Platform.isIOS
+                ? CupertinoButton(
+                    onPressed: addTransaction,
+                    child: Text(
+                      "Add Transaction",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    color: _themeConst.accentColor,
+                  )
+                : RaisedButton(
+                    onPressed: addTransaction,
+                    child: Text("Add Transaction"),
+                    color: _themeConst.accentColor,
+                    textColor: Colors.white,
+                  )
           ],
         ),
       ),

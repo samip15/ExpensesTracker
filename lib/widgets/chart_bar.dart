@@ -41,7 +41,7 @@ class ChartBar extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                           color: Theme.of(context).accentColor,
-                          borderRadius: BorderRadius.circular(10)),
+                          borderRadius: BorderRadius.circular(10),),
                     ),
                   ),
                 ],
@@ -51,7 +51,7 @@ class ChartBar extends StatelessWidget {
               height: constraints.maxHeight * 0.05,
             ),
             Container(
-              height: constraints.maxHeight * 0.015,
+              height: constraints.maxHeight * 0.15,
               child: Text(
                 "$weekDay",
               ),
