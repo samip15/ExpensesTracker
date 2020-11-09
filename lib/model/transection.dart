@@ -5,7 +5,6 @@ class Transaction {
   double price;
   DateTime transaction_date;
   String id;
-
   Transaction({
     @required this.name,
     @required this.price,
